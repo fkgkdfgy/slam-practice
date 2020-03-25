@@ -20,6 +20,7 @@
 #include <deque>
 #include <map>
 #include <array>
+#include "sophus/se2.hpp"
 #include "Tree.h"
 
 using namespace Eigen;

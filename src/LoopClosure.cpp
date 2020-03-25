@@ -121,17 +121,71 @@ void LoopClosure::Solve(map<int, Submap_Scan>& SubmapScanInfoPool_)
 {
 	// 建立问题
 	ceres::Problem problem_;
-	ceres::Problem::Options options_;
 	// 建立数据存贮
 	map<int, std::array<double, 3>> C_submaps;
 	map<int, std::array<double, 3>> C_nodes;
-	
-	//给数据存储添加数据
-	// submap
-	for （auto & element_pair:SubmapScanInfoPool_)
+	map<int, Eigen::Array3d> R_submaps;
+	//给数据存储添加数据初始值
+	for(auto & element_pair : SubmapScanInfoPool_)
 	{
-		
+		// 这里的是一个像素坐标
+	    Eigen::Vector2i temp_coordinate = PGMPool[element_pair.first]->GetScale().min();
+		// 这里得到的是真实的世界坐标
+		Eigen::Array3d submap_coordinate_insert = Array3d(temp_coordinate(0),temp_coordinate(1),0) * PGMPool[element_pair.first]->GetPixelSize();
+		C_submaps.insert(pair<int,std::array<double,3>>(element_pair.first,{submap_coordinate_insert(0),submap_coordinate_insert(1),submap_coordinate_insert(2)}));
+		R_submaps.insert(pair<int,Eigen::Array3d>(element_pair.first,submap_coordinate_insert));
+		// 插入Node 初始值
+		for (auto & element_node_pair : element_pair.second.Node_info_pool)
+		{
+			if(element_node_pair.second.status_ == 1)
+			C_nodes.insert(pair<int,std::arrray<double,3>(element_node_pair.first,{element_node_pair.second.world_pose(0),
+																				   element_node_pair.second.world_pose(1),
+																				   element_node_pair.second.world_pose(2)}));
+		}
 	}
 
+	// 给问题添加变量
+	for (auto &  element_submap:C_submaps)
+	{
+		problem_.AddParameterBlock(element_submap.second.data(),3);
+		if (element_submap.first == 0)
+		problem_.SetParameterBlockConstant(element_submap.second.data(),3);
+	}
+	for (auto & element_node:C_nodes)
+	{
+		problem_.AddParameterBlock(element_node.second.data(),3);
+	}
 
+	// 给问题添加约束
+	for(auto & element_submap:SubmapScanInfoPool_)
+	{
+		Eigen::Array3d submap_pose_ = R_submaps[element_submap];
+		double sin_ = std::sin(submap_pose_(2));
+		double cos_ = std::cos(submap_pose_(2));
+		for (auto & element_node:element_submap.second.Node_info_pool)
+		{
+			// 计算相对位姿
+			Eigen::Array3d node_pose_ = element_node.second.world_pose;
+			Eigen::Array3d delta_pose_ = node_pose_-submap_pose_;
+			Eigen::Array3d relative_pose_ (cos_*delta_pose_(0) + sin_*delta_pose_(1),
+										    -sin_*delta_pose_(0) + cos_ * delta_pose_(1),
+											delta_pose_(2));
+			problem_.AddResidualBlock(CreateSPAErrorFucntion(relative_pose_),
+			element_node.second.status_ == 1?nullptr:ceres::HuberLoss(20)
+			,C_submaps[element_submap.first].data(),C_nodes[element_node.first].data());
+		}
+	}
+	
+	ceres::Solver::Summary summary_;
+	ceres::Solver::Options options_;
+	// Global Optimization 整体优化的配置
+	options_.use_nonmonotonic_steps = false;
+	options_.num_threads = 6;
+	options_.max_num_iterations = 30;
+	
+	Solve(options_,&problem_,&summary_);
+
+	// 存储结果
+	
+	
 }

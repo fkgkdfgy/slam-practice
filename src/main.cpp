@@ -8,18 +8,18 @@
 #include "LoopClosure.h"
 using namespace std;
 typedef Submap_Scan::Node_info::status NodeStatus;
-// CastRays Ê±¼äÏûºÄ´ó»§
+// CastRays Ê±ï¿½ï¿½ï¿½ï¿½ï¿½Ä´ï¿½
 extern int count_0;
 int main()
 {
 
     // Initialization Part
     MapBuilder mapbuilder_;
-    // ÉèÖÃÀ×´ï²ÎÊı
+    // ï¿½ï¿½ï¿½ï¿½ï¿½×´ï¿½ï¿½ï¿½ï¿½
     mapbuilder_.SetLaserParameter();
-    // ÉèÖÃÁíÍâµÄÒ»Ğ©²ÎÊı£¬ ÕâÀïµÄ²ÎÊı±È½ÏÖØÒªÔÚÖ®ºóÆ¥ÅäµÄÊ±ºò¶¼ÄÜÓÃÉÏ
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»Ğ©ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ä²ï¿½ï¿½ï¿½ï¿½È½ï¿½ï¿½ï¿½Òªï¿½ï¿½Ö®ï¿½ï¿½Æ¥ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     mapbuilder_.SetMapParameter();
-    // »ñÈ¡ËùÓĞµÄµÄScan Êı¾İ
+    // ï¿½ï¿½È¡ï¿½ï¿½ï¿½ĞµÄµï¿½Scan ï¿½ï¿½ï¿½ï¿½
     mapbuilder_.GetAllData("E:\\OpenCV\\opencv_learning\\ConsoleApplication1\\b.txt", mapbuilder_.AllLaserData);
     MapBuilder::Pose CurrentPose = MapBuilder::Pose(0, 0, 0);
     MapBuilder::LocalMap_ localMap;
@@ -40,78 +40,78 @@ int main()
     double pixelSize = 0.1;
     vector<vector<Array2d>> point_pool;
 
-    // »Ø»·µÄ×¼±¸¹¤×÷
+    // ï¿½Ø»ï¿½ï¿½ï¿½×¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     LoopClosure loopclosure_;
 
 
-    // Ö÷Ìå
+    // ï¿½ï¿½ï¿½ï¿½
     for (int ScanIdx = 0; ScanIdx < mapbuilder_.AllLaserData.size(); ScanIdx++)
     {
         cout << "the ScanIdx is " << ScanIdx << endl;
         mapbuilder_.ScanIdx = ScanIdx;
-        // ¶ÁÈ¡µ¥Ö¡Êı¾İ
+        // ï¿½ï¿½È¡ï¿½ï¿½Ö¡ï¿½ï¿½ï¿½ï¿½
         MapBuilder::LaserData CurrentScan = mapbuilder_.ReadAScan(ScanIdx, mapbuilder_.AllLaserData, mapbuilder_.MapParameter_);
-        // Voxel Filter ¶ÔÊı¾İ×öÒ»´ÎÂË²¨ 
+        // Voxel Filter ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½Ë²ï¿½ 
         MapBuilder::LaserData &  voxel_filtered_scan = mapbuilder_.VoxelFilter(CurrentScan, pixelSize);
 
-        // ¶ÔµÚÒ»Ö¡½øĞĞ³õÊ¼»¯
+        // ï¿½Ôµï¿½Ò»Ö¡ï¿½ï¿½ï¿½Ğ³ï¿½Ê¼ï¿½ï¿½
         if (ScanIdx == 0)
         {
             mapbuilder_.Initialization(voxel_filtered_scan, CurrentPose);
             mapbuilder_.MapParameter_.miniUpdated = true;
 
-            // ÎªµØÍ¼²åÈëµÚÒ»Ö¡
+            // Îªï¿½ï¿½Í¼ï¿½ï¿½ï¿½ï¿½ï¿½Ò»Ö¡
             LaserFan temp(voxel_filtered_scan, Array3d(0, 0, 0));
             pgm_set.push_back(new PGMBuilder());
 
             pgm_set.back()->InsertFirstScan(temp, pixelSize);
-            // Submap Ìí¼ÓĞÅÏ¢
+            // Submap ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢
             auto result_flag = SubmapScanInfoPool.insert(pair<int, Submap_Scan>(pgm_set.back()->GetSubmapIdx(),
                 Submap_Scan(pgm_set.back()->GetSubmapIdx())));
             assert(result_flag.second == true);
             SubmapScanInfoPool[pgm_set.back()->GetSubmapIdx()].Insert(pgm_set.back()->GetSubmapIdx(), ScanIdx,NodeStatus(1) ,CurrentPose,-1.f);
             SubmapScanInfoPool[pgm_set.back()->GetSubmapIdx()].UpdateScale_Min(Array2i(pgm_set.back()->GetScale().min()));
             Roughcsmer_.GenerateSearchWindow(temp,
-                0.2 // CSM Æ½ÒÆËÑËØ·¶Î§
-                , 0.1, // CSM Ğı×ªËÑË÷·¶Î§
+                0.2 // CSM Æ½ï¿½ï¿½ï¿½ï¿½ï¿½Ø·ï¿½Î§
+                , 0.1, // CSM ï¿½ï¿½×ªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î§
                 pixelSize);
             continue;
         }
 
-        // ÒÔÔÈËÙÔË¶¯Ä£ĞÍ£¬¶Ôµ±Ç°Ö¡Ìá¹©Ò»¸öÎ»×ËµÄ¹À¼ÆÖµ
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë¶ï¿½Ä£ï¿½Í£ï¿½ï¿½Ôµï¿½Ç°Ö¡ï¿½á¹©Ò»ï¿½ï¿½Î»ï¿½ËµÄ¹ï¿½ï¿½ï¿½Öµ
         pose_guess = mapbuilder_.RoughPoseEstimation(CurrentPose, ScanIdx);
 
-        // CSMÆ¥Åä,´ÖÆ¥Åä
+        // CSMÆ¥ï¿½ï¿½,ï¿½ï¿½Æ¥ï¿½ï¿½
         Array3d new_pose = Roughcsmer_.Match(voxel_filtered_scan, pose_guess, *pgm_set.front());
 
-        // HillClimb ¾«Æ¥Åä
+        // HillClimb ï¿½ï¿½Æ¥ï¿½ï¿½
         float matching_score = -1.f;
         HillClimbFiner Finermatcher_(*pgm_set.front(), Roughcsmer_);
         new_pose = Finermatcher_.FinerEstimaiton(voxel_filtered_scan, new_pose,matching_score);
         cout << "the pose from the FinerEstimation is " << new_pose(0) << "   " << new_pose(1) << "   " << new_pose(2) << endl;
 
-        // ¸ù¾İÏà¶ÔÔË¶¯ÅĞ¶Ï ÊÇ·ñÌí¼Ó¹Ø¼üÖ¡ ÕâĞ©if º¯ÊıÒ²¾ÍÊÇMotionFilter
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë¶ï¿½ï¿½Ğ¶ï¿½ ï¿½Ç·ï¿½ï¿½ï¿½ï¿½Ó¹Ø¼ï¿½Ö¡ ï¿½ï¿½Ğ©if ï¿½ï¿½ï¿½ï¿½Ò²ï¿½ï¿½ï¿½ï¿½MotionFilter
         if (abs(new_pose(0) - motion_filter_pose(0)) > mapbuilder_.MapParameter_.miniUpdatedDT ||
             abs(new_pose(1) - motion_filter_pose(1)) > mapbuilder_.MapParameter_.miniUpdatedDT ||
             abs(new_pose(2) - motion_filter_pose(2)) > mapbuilder_.MapParameter_.miniUpdateDR)
         {
             motion_filter_pose = new_pose;
-            // ÕâÀï¸ú×Ù¶ªÊ§µÄ²ÎÊıºÍCSMµÄÆ¥Åä²ÎÊıÏàµÈ
+            // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ù¶ï¿½Ê§ï¿½Ä²ï¿½ï¿½ï¿½ï¿½ï¿½CSMï¿½ï¿½Æ¥ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
             if (abs(new_pose(0) - CurrentPose(0)) > 0.5 ||
                 abs(new_pose(1) - CurrentPose(1)) > 0.5)
             {
                 cout << "Tracking LOST!!!!" << endl;
-                // TODO ÕâÀïºóÃæ»áÖ±½ÓÌø×ªµ½ÖØ¶¨Î»µÄÄ£¿éÀ´½øĞĞÖØ¶¨Î»
+                // TODO ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½×ªï¿½ï¿½ï¿½Ø¶ï¿½Î»ï¿½ï¿½Ä£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ø¶ï¿½Î»
                 break;
             }
             else
             {
-                // ÒÔÏÂÕâĞ©´úÂë×îºó»á±»¼¯³ÉÔÚMapbuilderÀï
-                // ²åÈë
+                // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ğ©ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½á±»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Mapbuilderï¿½ï¿½
+                // ï¿½ï¿½ï¿½ï¿½
                 LaserData temp_node_submap = BasicFunction::Transform(voxel_filtered_scan, new_pose);
                 LaserFan temp_insert(temp_node_submap, new_pose);
                 
-                // ×ÓÍ¼²åÈëNode 
+                // ï¿½ï¿½Í¼ï¿½ï¿½ï¿½ï¿½Node 
                 if (pgm_set.front()->laserfan_num < submap_scale)
                 {
                     pgm_set.front()->Insert(temp_insert);
@@ -132,7 +132,7 @@ int main()
                             pgm_set.push_back(new PGMBuilder());
 
                             pgm_set.back()->InsertFirstScan(temp_insert, pixelSize);
-                            // submap Êı¾İºÍËÑ¼¯
+                            // submap ï¿½ï¿½ï¿½İºï¿½ï¿½Ñ¼ï¿½
                             auto result_flag = SubmapScanInfoPool.insert(pair<int, Submap_Scan>(pgm_set.back()->GetSubmapIdx(), 
                                 Submap_Scan(pgm_set.back()->GetSubmapIdx())));
                             assert(result_flag.second == true);
@@ -152,30 +152,29 @@ int main()
                     SubmapScanInfoPool[pgm_set.front()->GetSubmapIdx()].Insert(pgm_set.front()->GetSubmapIdx(), ScanIdx, NodeStatus(1), new_pose, matching_score);
                     SubmapScanInfoPool[pgm_set.front()->GetSubmapIdx()].UpdateScale_Min(Array2i(pgm_set.front()->GetScale().min()));
                     pgm_set.back()->InsertFirstScan(temp_insert, pixelSize);
-                    //submap Êı¾İÊÕ¼¯
+                    //submap ï¿½ï¿½ï¿½ï¿½ï¿½Õ¼ï¿½
                     auto result_flag = SubmapScanInfoPool.insert(pair<int, Submap_Scan>(pgm_set.back()->GetSubmapIdx(),
                         Submap_Scan(pgm_set.back()->GetSubmapIdx())));
                     assert(result_flag.second == true);
                     SubmapScanInfoPool[pgm_set.back()->GetSubmapIdx()].Insert(pgm_set.back()->GetSubmapIdx(), ScanIdx, NodeStatus(1), new_pose, matching_score);
                     SubmapScanInfoPool[pgm_set.back()->GetSubmapIdx()].UpdateScale_Min(Array2i(pgm_set.back()->GetScale().min()));
                 }
+                // voxel_filtered_scan ä¿å­˜åœ¨MapBuilder
+                // PGMBuilder M2MPGM æ”¾åœ¨loopclosure
 
-                // voxel_filtered_scan ±£´æÔÚMapBuilder
-                // PGMBuilder M2MPGM ·ÅÔÚloopclosure
 
-
-                // Ğ´Ò»¸ö»Ø»·µÄÂß¼­
-                // Ã÷È·Ò»¸öPGMBuilder µÄÂß¼­ Ò²¾ÍÊÇ×ÓÍ¼µÄ×ø±êÊµ¼ÊÉÏÖ±½ÓÊÇscale_.min() + ½Ç¶ÈÎª0 
-                // È»ºó×Ó½Úµã¶¼Òª¸ù¾İÕâ¸öÀ´ËãÏà¶ÔÎ»×Ë 
-                // ÒòÎª²åÈëÊıÖµµÄÊ±ºò É¨Ãèµã¶¼ÒÑ¾­±»×ªµ½ÁËÊÀ½ç×ø±êÏµÏÂ
-                // »¹ÊÇ°´ÕÕCartographerµÄÂß¼­¶ÔÕâ¸ö´úÂë½øĞĞ¹¹½¨ Ò²¾ÍÊÇÒ»¹²ÓĞÁ½ÖÖ Ô¼Êø submap ÄÚ²¿½ÚµãµÄÔ¼ÊøºÍ submap Íâ²¿½ÚµãµÄÔ¼Êø
+                // å†™ä¸€ä¸ªå›ç¯çš„é€»è¾‘
+                // æ˜ç¡®ä¸€ä¸ªPGMBuilder çš„é€»è¾‘ ä¹Ÿå°±æ˜¯å­å›¾çš„åæ ‡å®é™…ä¸Šç›´æ¥æ˜¯scale_.min() + è§’åº¦ä¸º0 
+                // ç„¶åå­èŠ‚ç‚¹éƒ½è¦æ ¹æ®è¿™ä¸ªæ¥ç®—ç›¸å¯¹ä½å§¿ 
+                // å› ä¸ºæ’å…¥æ•°å€¼çš„æ—¶å€™ æ‰«æç‚¹éƒ½å·²ç»è¢«è½¬åˆ°äº†ä¸–ç•Œåæ ‡ç³»ä¸‹
+                // è¿˜æ˜¯æŒ‰ç…§Cartographerçš„é€»è¾‘å¯¹è¿™ä¸ªä»£ç è¿›è¡Œæ„å»º ä¹Ÿå°±æ˜¯ä¸€å…±æœ‰ä¸¤ç§ çº¦æŸ submap å†…éƒ¨èŠ‚ç‚¹çš„çº¦æŸå’Œ submap å¤–éƒ¨èŠ‚ç‚¹çš„çº¦æŸ
                 
-                // 1. ¸øÃ¿¸öKeyScan Node Æ¥ÅäÃ¿Ò»¸öSubmap Ò»¿ªÊ¼¶¼½øĞĞÈ«Æ¥Åä
-                // 2. ¸øÃ¿¸öÍê³ÉµÄsubmapÖĞµÄNode ×öÆ¥Åä ÕâÒ»²½ºÃÏñºÍµÚÒ»²½ÓĞÖØµş
-                // 3. outside µÄµãµ½´ïÒ»¶¨ÊıÄ¿Ö®ºó¾Í½øĞĞÒ»´Î»Ø»·ÓÅ»¯
-                // µÚÒ»²½
+                // 1. ç»™æ¯ä¸ªKeyScan Node åŒ¹é…æ¯ä¸€ä¸ªSubmap ä¸€å¼€å§‹éƒ½è¿›è¡Œå…¨åŒ¹é…
+                // 2. ç»™æ¯ä¸ªå®Œæˆçš„submapä¸­çš„Node åšåŒ¹é… è¿™ä¸€æ­¥å¥½åƒå’Œç¬¬ä¸€æ­¥æœ‰é‡å 
+                // 3. outside çš„ç‚¹åˆ°è¾¾ä¸€å®šæ•°ç›®ä¹‹åå°±è¿›è¡Œä¸€æ¬¡å›ç¯ä¼˜åŒ–
+                // ç¬¬ä¸€æ­¥
 
-                // ÉèÖÃ»Ø»·µÄÒªÇó 
+                // è®¾ç½®å›ç¯çš„è¦æ±‚ 
                 if (1)
                 {
                     loopclosure_.ComputeConstraintForNode(Roughcsmer_, voxel_filtered_scan, new_pose, SubmapScanInfoPool, ScanIdx);
@@ -192,7 +191,7 @@ int main()
         // TODO tracking lost and relocation;
         
 
-        // Ìí¼Óµ±Ç°Î»×Ëµ½Â·¾¶
+        // ï¿½ï¿½ï¿½Óµï¿½Ç°Î»ï¿½Ëµï¿½Â·ï¿½ï¿½
         CurrentPose = new_pose;
         mapbuilder_.path.push_back(CurrentPose);
     }
