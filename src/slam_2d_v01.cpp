@@ -13,7 +13,7 @@ void MapBuilder::Start()
 }
 
 // main funcitons
-// ÉèÖÃÀ×´ï²ÎÊı
+// ï¿½ï¿½ï¿½ï¿½ï¿½×´ï¿½ï¿½ï¿½ï¿½
 void MapBuilder::SetLaserParameter()
 {
     LaserParameter_.angle_min = -2.351831;
@@ -24,7 +24,7 @@ void MapBuilder::SetLaserParameter()
     LaserParameter_.range_max = 60;
     LaserParameter_.time_increment = 1.7361 * 0.00001;
 }
-// ÉèÖÃµØÍ¼²ÎÊı
+// ï¿½ï¿½ï¿½Ãµï¿½Í¼ï¿½ï¿½ï¿½ï¿½
 void MapBuilder::SetMapParameter()
 {
     MapParameter_.BorderSize = 1;
@@ -37,7 +37,7 @@ void MapBuilder::SetMapParameter()
     MapParameter_.range_eff_min = 0.5;
     MapParameter_.fastResolution = Array3d(0.05, 0.05, 0.008726646259972);
 }
-// ¶ÁÈ¡ËùÓĞÖ¡µÄÊı¾İ ÓÃÕıÔò±í´ïÊ½ÊµÏÖ 
+// ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½Ö¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê½Êµï¿½ï¿½ 
 bool MapBuilder::GetAllData(const string str_temp, map<unsigned int, MapBuilder::LaserData>& AllLaserData)
 {
     const string str_ = str_temp;
@@ -82,7 +82,7 @@ bool MapBuilder::GetAllData(const string str_temp, map<unsigned int, MapBuilder:
     return true;
 
 }
-// ¶ÁÈ¡µ¥¸öÖ¡µÄÊı¾İ
+// ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½Ö¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 MapBuilder::LaserData MapBuilder::ReadAScan(unsigned int ScanIdx, map<unsigned int, MapBuilder::LaserData>& AllLaserData, MapBuilder::MapParameter MapParameter_)
 {
 
@@ -123,7 +123,7 @@ bool MapBuilder::Initialization(const MapBuilder::LaserData& CurrentScan, const 
     return true;
 }
 
-// ÌåËØÂË²¨¹ıÂËµãÔÆ
+// ï¿½ï¿½ï¿½ï¿½ï¿½Ë²ï¿½ï¿½ï¿½ï¿½Ëµï¿½ï¿½ï¿½
 MapBuilder::LaserData & MapBuilder::VoxelFilter(const MapBuilder::LaserData& Laser_data_, double pixelSize)
 {
     using keyType = std::bitset<64 * 2>;
@@ -144,7 +144,7 @@ MapBuilder::LaserData & MapBuilder::VoxelFilter(const MapBuilder::LaserData& Las
         //temp_file << x_test << "   " << y_test << endl;
         keyType temp_bitset((x << 64) | y);
         auto it_inserted = voxel_set_.insert(temp_bitset);
-        // Èç¹ûÔø¾­²åÈë¹ıÏàÍ¬µÄÖµ if Ìõ¼ş²»»áÍ¨¹ı
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¬ï¿½ï¿½Öµ if ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¨ï¿½ï¿½
         if (it_inserted.second)
         {
             filtered_pointCloud.push_back(element);
@@ -155,7 +155,7 @@ MapBuilder::LaserData & MapBuilder::VoxelFilter(const MapBuilder::LaserData& Las
     return filtered_pointCloud;
 }
 
-// ³éÈ¡¾ÖµØÍ¼
+// ï¿½ï¿½È¡ï¿½Öµï¿½Í¼
 MapBuilder::LocalMap_ MapBuilder::ExtractLocalMap(const MapBuilder::LaserData& Allpoints, const MapBuilder::LaserData& filtered_pointCloud
                                                 , MapBuilder::Pose pose_, unsigned int BorderSize)
 {
@@ -190,7 +190,7 @@ MapBuilder::LocalMap_ MapBuilder::ExtractLocalMap(const MapBuilder::LaserData& A
 MapBuilder::LocalMap_ MapBuilder::ExtractLocalMap_Kdtree(const MapBuilder::LaserData& Allpoints, const MapBuilder::LaserData& filtered_pointCloud
                                                        , MapBuilder::Pose pose_, unsigned int BorderSize)
 {
-    // Ñ°ÕÒÖÊĞÄ
+    // Ñ°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     MapBuilder::LaserData localMap;
     MapBuilder::LaserData transformed_pointCloud = Transform(filtered_pointCloud, pose_);
     Array2d mean_xy = Array2d::Zero();
@@ -315,7 +315,7 @@ MapBuilder::MatchResult MapBuilder::HillClimbMatcher(const MapBuilder::OccGrid& 
                 for (unsigned int trans_y = 0; trans_y < 3; trans_y++)
                 {
                     float score = 0;
-                    // ±ä»»µÄ²¿·Ö
+                    // ï¿½ä»»ï¿½Ä²ï¿½ï¿½ï¿½
                     Array3d a = MapBuilder::Pose(trans_range(trans_x), trans_range(trans_y), rot_range(angle_))+middlePose;
                     MapBuilder::Pose temp_pose = a + Array3d(-minXY(0),-minXY(1),0) ;
                     MapBuilder::LaserData scan_temp = Transform(ScanData, temp_pose);
@@ -371,7 +371,7 @@ MapBuilder::MatchResult MapBuilder::HillClimbMatcher(const MapBuilder::OccGrid& 
 
     return MapBuilder::MatchResult(dBestPose, ValueIdexForBest, ScanData, BestScoreIndex);
 }
-// ¼ÓÈë¹Ø¼üÖ¡£¬Ö÷ÒªÄ¿µÄÊÇ°Ñ ĞÂµÄµã¼ÓÈëµ½ µã¼¯Àï ÒòÎª»¹Ã»ÓĞĞ´»Ø»· ×÷ÓÃÓĞÏŞ
+// ï¿½ï¿½ï¿½ï¿½Ø¼ï¿½Ö¡ï¿½ï¿½ï¿½ï¿½ÒªÄ¿ï¿½ï¿½ï¿½Ç°ï¿½ ï¿½ÂµÄµï¿½ï¿½ï¿½ëµ½ ï¿½ã¼¯ï¿½ï¿½ ï¿½ï¿½Îªï¿½ï¿½Ã»ï¿½ï¿½Ğ´ï¿½Ø»ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 void MapBuilder::AddKeyScan(const MapBuilder::MatchResult& matchresult_)
 {
     MapBuilder::KeyScan keyscan_temp;
@@ -383,7 +383,7 @@ void MapBuilder::AddKeyScan(const MapBuilder::MatchResult& matchresult_)
     // find the new points
     for (int i = 0; i < size; i++)
     {
-        // ÕâÀïµÄif ¾ÍÊÇÓÃÀ´¼ì²âÊÇ²»ÊÇÒ»¸öĞÂµãµÄ
+        // ï¿½ï¿½ï¿½ï¿½ï¿½if ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç²ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½Âµï¿½ï¿½
         if (matchresult_.pointsValueIdex_[i] > 1.1)
         {
             Eigen::Array2d temp_point = Laser_temp_world[i];
@@ -403,7 +403,7 @@ void MapBuilder::AddKeyScan(const MapBuilder::MatchResult& matchresult_)
     keyscans_.push_back(keyscan_temp);
 }
 
-// AddKeyScan for V02  ÎªÁËÄ£ÄâCartographerµÄ×´Ì¬À´½øĞĞsubmapºÍnodeµÄ²åÈë
+// AddKeyScan for V02  Îªï¿½ï¿½Ä£ï¿½ï¿½Cartographerï¿½ï¿½×´Ì¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½submapï¿½ï¿½nodeï¿½Ä²ï¿½ï¿½ï¿½
 void MapBuilder::AddKeyScan_v02(MapBuilder::MatchResult_v02 & matching_result) 
 {
 
@@ -619,7 +619,31 @@ double MapBuilder::calculateL2distance(int x1, int y1, int x2, int y2)
     return double(sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)));
 }
 
+const vector<Eigen::Array2d> & MapBuilder::ProcessUpdate(
+    const map<int,Eigen::Array3d> & node_result) 
+{
 
+    Allpoints_LoopClosure.clear();
+    // ç»Ÿè®¡æ€»å…±çš„ç‚¹æ•°
+    int total_count= 0;
+    for (auto & element_keyscan:V02_keyscan_pool)
+    {
+        total_count+=element_keyscan.size();
+    }
+    Allpoints_LoopClosure.reserve(total_count);
+    
+    for (auto & node_element:node_result)
+    {
+        // å•å¸§å¤„ç†
+        vector<Array2d> transformed_data = 
+        BasicFunction::Transform(V02_keyscan_pool[node_element.first],node_element.second);
+        Allpoints_LoopClosure.insert(Allpoints_LoopClosure.end(),
+        transformed_data.begin(),transformed_data.end());
+    }
+    
+    return Allpoints_LoopClosure;
+
+}
 
 
 

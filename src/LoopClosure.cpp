@@ -138,7 +138,7 @@ void LoopClosure::Solve(map<int, Submap_Scan>& SubmapScanInfoPool_)
 		for (auto & element_node_pair : element_pair.second.Node_info_pool)
 		{
 			if(element_node_pair.second.status_ == 1)
-			C_nodes.insert(pair<int,std::arrray<double,3>(element_node_pair.first,{element_node_pair.second.world_pose(0),
+			C_nodes.insert(pair<int,std::array<double,3>>(element_node_pair.first,{element_node_pair.second.world_pose(0),
 																				   element_node_pair.second.world_pose(1),
 																				   element_node_pair.second.world_pose(2)}));
 		}
@@ -149,7 +149,7 @@ void LoopClosure::Solve(map<int, Submap_Scan>& SubmapScanInfoPool_)
 	{
 		problem_.AddParameterBlock(element_submap.second.data(),3);
 		if (element_submap.first == 0)
-		problem_.SetParameterBlockConstant(element_submap.second.data(),3);
+		problem_.SetParameterBlockConstant(element_submap.second.data());
 	}
 	for (auto & element_node:C_nodes)
 	{
@@ -159,7 +159,7 @@ void LoopClosure::Solve(map<int, Submap_Scan>& SubmapScanInfoPool_)
 	// 给问题添加约束
 	for(auto & element_submap:SubmapScanInfoPool_)
 	{
-		Eigen::Array3d submap_pose_ = R_submaps[element_submap];
+		Eigen::Array3d submap_pose_ = R_submaps[element_submap.first];
 		double sin_ = std::sin(submap_pose_(2));
 		double cos_ = std::cos(submap_pose_(2));
 		for (auto & element_node:element_submap.second.Node_info_pool)
@@ -171,7 +171,7 @@ void LoopClosure::Solve(map<int, Submap_Scan>& SubmapScanInfoPool_)
 										    -sin_*delta_pose_(0) + cos_ * delta_pose_(1),
 											delta_pose_(2));
 			problem_.AddResidualBlock(CreateSPAErrorFucntion(relative_pose_),
-			element_node.second.status_ == 1?nullptr:ceres::HuberLoss(20)
+			(element_node.second.status_ == 1)? (nullptr):(new ceres::HuberLoss(20))
 			,C_submaps[element_submap.first].data(),C_nodes[element_node.first].data());
 		}
 	}
@@ -183,9 +183,14 @@ void LoopClosure::Solve(map<int, Submap_Scan>& SubmapScanInfoPool_)
 	options_.num_threads = 6;
 	options_.max_num_iterations = 30;
 	
-	Solve(options_,&problem_,&summary_);
+	ceres::Solve(options_,&problem_,&summary_);
 
 	// 存储结果
-	
-	
+
+	for (auto & element_node:C_nodes)
+	{
+		auto temp = element_node.second;
+		node_pose_result.insert(pair<int,Eigen::Array3d>(element_node.first,Array3d(temp[0],temp[1],temp[2])));
+	}
+	// submap 的结果暂时用不到就先不写
 }

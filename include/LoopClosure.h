@@ -42,7 +42,7 @@ std::array<T, 3> ScaleError(const std::array<T, 3> & error,
 class SPAErrorFunctoin
 {
 public:
-	SPAErrorFunctoin(Eigen::Array3d & relative_pose_):
+	SPAErrorFunctoin(const Eigen::Array3d & relative_pose_):
 	relative_pose(relative_pose_){}
 	template<typename T>
 	bool operator()(const T* const start_pose,const T*const end_pose,
@@ -94,6 +94,7 @@ public:
 	bool CheckLoopFlag();
 	bool CheckSolveFlag() const  { return Ready; }
 	void Solve(map<int, Submap_Scan>& SubmapScanInfoPool_);
+	const map<int,Eigen::Array3d> & GetSolveResult()const {return node_pose_result;}
 private:
 	vector<const PGMBuilder*> PGMPool;
 	vector<M2MPGM*> M2MPGMPool;
@@ -104,6 +105,8 @@ private:
 	bool NotFind;
 	float distance_drive;
 	Array3d CurrentlyScanPose;
+	map<int,Eigen::Array3d> submap_pose_result;
+	map<int,Eigen::Array3d> node_pose_result;
 };
 
 ceres::CostFunction * CreateSPAErrorFucntion(const Array3d & relative_pose)

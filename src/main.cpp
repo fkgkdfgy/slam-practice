@@ -175,15 +175,8 @@ int main()
                 // 第一步
 
                 // 设置回环的要求 
-                if (1)
-                {
-                    loopclosure_.ComputeConstraintForNode(Roughcsmer_, voxel_filtered_scan, new_pose, SubmapScanInfoPool, ScanIdx);
-                    bool Ready = loopclosure_.CheckSolveFlag();
-                    if (Ready)
-                        loopclosure_.Solve();
-                    else
-                        continue;
-                }
+                loopclosure_.ComputeConstraintForNode(Roughcsmer_, voxel_filtered_scan, new_pose, SubmapScanInfoPool, ScanIdx);
+
 
             }
         }
@@ -196,8 +189,10 @@ int main()
         mapbuilder_.path.push_back(CurrentPose);
     }
 
+    loopclosure_.Solve(SubmapScanInfoPool);
+    const vector<Array2d> & ref_point = mapbuilder_.ProcessUpdate(loopclosure_.GetSolveResult());
     cout << "MISSION COMPLETED" << endl;
-    //mapbuilder_.Drawer(point_pool, 0.2, mapbuilder_.ScalarSet_);
+    mapbuilder_.Drawer(ref_point, 0.2, mapbuilder_.ScalarSet_);
     cv::waitKey(0);
     return 0;
 }

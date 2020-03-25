@@ -104,13 +104,13 @@ public:
     MapBuilder () {}
     
     // Set the simulating Laser's Parameter  
-    // ÉèÖÃ²ÎÊý
+    // ï¿½ï¿½ï¿½Ã²ï¿½ï¿½ï¿½
     void SetLaserParameter (); 
     
-    // ÉèÖÃ²ÎÊý 
+    // ï¿½ï¿½ï¿½Ã²ï¿½ï¿½ï¿½ 
     void SetMapParameter(); 
     
-    // µÃµ½ËùÓÐScanµÄÊý¾Ý
+    // ï¿½Ãµï¿½ï¿½ï¿½ï¿½ï¿½Scanï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     bool GetAllData(const string,map<unsigned int,MapBuilder::LaserData> & AllLaserData);
     // ReadAScam is used to extract the LaserData from the file.
     // The raw data consist of range and angle;
@@ -146,12 +146,15 @@ public:
     // this function is based on Opencv to draw something
     void Drawer(const MapBuilder::LaserData& Allpoints, double pixelSize, const MapBuilder::ScalarSet scalar_set_);
 
-    // »Ø»·µÄÄÚÈÝ
+    // ï¿½Ø»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     void updatedata(const vector<Array2d>& voxel_filtered_scan_, Array3d pose_, Array2i map_index, int ScanIdx);
 
+    const vector<Eigen::Array2d> & ProcessUpdate(const map<int,
+                                Eigen::Array3d> & node_result) ;
     //private:
     vector<MapBuilder::LaserData> LaserDataPool_;
-    vector<vector<Array2d>> V02_keyscan_pool;
+    vector<vector<Eigen::Array2d>> V02_keyscan_pool;
+    vector<Eigen::Array2d> Allpoints_LoopClosure;
     vector<Array3d> PosePool;
     vector<KeyScan>  keyscans_;
     map<unsigned int,LaserData> AllLaserData;
@@ -167,6 +170,9 @@ public:
     ScalarSet ScalarSet_;
     tree::Kdtree kdtree_;
     int ScanIdx;
+
+
+
     // this function just return distance difference of pose
     Pose DiffPose(const vector<Pose> & path, Pose Current) const;
     
@@ -175,7 +181,7 @@ public:
     // used in ComputeOccGrids to discrete the points coordiante
     vector<Array2i> DiscretePoints(const LaserData & PointCloud, double pixelSize) const ;
     
-    // Drawer Basic Funtion »­Í¼µÄº¯Êý ²»ÊÇ¶¼ÓÃµ½ÁË
+    // Drawer Basic Funtion ï¿½ï¿½Í¼ï¿½Äºï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ç¶ï¿½ï¿½Ãµï¿½ï¿½ï¿½
     void DrawPoint(cv::Mat& map_, const LaserData& laserdata_, double pixelSize, const cv::Scalar& scalar_, const Array2d& _offsetXY);
     void DrawLine(cv::Mat & map_, Eigen::Array2i start_,Eigen::Array2i end_, const cv::Scalar & scalar_);
     void DrawLine(cv::Mat & map_, cv::Point start_,cv::Point end_, const cv::Scalar & scalar_);
